@@ -451,7 +451,6 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     <div class="section-head">
       <div>
         <h2>Tren Produksi Bulanan</h2>
-        <div class="section-sub">Jumlah k2 (jenis_kebun = 1), seluruh unit, per bulan</div>
       </div>
     </div>
     <div class="chart-shell" id="trendChartShell"></div>
@@ -689,7 +688,7 @@ function renderMonthChips() {
   const note = document.getElementById("lagNote");
   if (CURRENT.summary.incomplete_count > 0) {
     note.style.display = "block";
-    note.innerHTML = `<b>${CURRENT.summary.incomplete_count} unit</b> belum melaporkan sebagian bulan terakhir — penurunan pada bulan-bulan terakhir di grafik ini bisa jadi karena laporan yang belum masuk, bukan produksi yang benar-benar turun. Lihat panel &ldquo;Unit dengan Data Belum Lengkap&rdquo;.`;
+    note.innerHTML = `<b>${CURRENT.summary.incomplete_count} unit</b> belum melaporkan data bulan terakhir — penurunan pada bulan-bulan terakhir di grafik ini bisa jadi karena laporan yang belum masuk, bukan produksi yang benar-benar turun. Lihat panel &ldquo;Unit dengan Data Belum Lengkap&rdquo;.`;
   } else {
     note.style.display = "none";
   }
