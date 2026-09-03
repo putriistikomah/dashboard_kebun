@@ -233,6 +233,16 @@ h2 {
 .kpi .mini-composition { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
 .kpi .mini-row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
 .kpi .mini-row b { color: var(--ink-primary); font-weight: 600; }
+.kpi .compare-table { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+.kpi .compare-row { display: grid; grid-template-columns: 42px 1fr 1fr 56px; align-items: baseline; gap: 8px; font-size: 12.5px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+.kpi .compare-row.head { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); }
+.kpi .compare-row b { color: var(--ink-primary); font-weight: 600; font-size: 14px; }
+.kpi .compare-row .yr-old { color: var(--ink-secondary); }
+.kpi .compare-row .delta { text-align: right; font-weight: 600; }
+.kpi .produktivitas-compare { display: flex; align-items: baseline; gap: 16px; margin-top: 2px; }
+.kpi .produktivitas-compare .yr-block .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi .produktivitas-compare .yr-old .value { font-size: 16px; color: var(--ink-secondary); }
+.kpi .produktivitas-compare .yr-label { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; }
 
 .panel {
   background: var(--surface);
@@ -587,26 +597,35 @@ function renderHeader() {
     sub: "dari " + fmt(s.n_units) + " unit", valueColor: s.incomplete_count > 0 ? cssvar("--status-critical") : cssvar("--ink-primary"),
   });
 
-  function deltaTag(pct) {
-    if (pct === null || pct === undefined) return "";
-    const color = pct >= 0 ? cssvar("--status-good") : cssvar("--status-critical");
-    return ` <span style="color:${color};font-size:11px;font-weight:600">${fmtPct(pct)}</span>`;
+  function deltaColor(pct) {
+    if (pct === null || pct === undefined) return cssvar("--ink-muted");
+    return pct >= 0 ? cssvar("--status-good") : cssvar("--status-critical");
   }
 
   const ac = s.annual_compare;
   const annualTiles = (ac && ac.available) ? `
-    <div class="kpi">
-      <div class="label">Luas Lahan 2026 vs 2025</div>
-      <div class="mini-composition">
-        <div class="mini-row"><span>TBM</span><span><b>${fmt(ac.tbm_2026)}</b>${deltaTag(ac.tbm_delta_pct)}</span></div>
-        <div class="mini-row"><span>TM</span><span><b>${fmt(ac.tm_2026)}</b>${deltaTag(ac.tm_delta_pct)}</span></div>
-        <div class="mini-row"><span>TTM</span><span><b>${fmt(ac.ttm_2026)}</b>${deltaTag(ac.ttm_delta_pct)}</span></div>
+    <div class="kpi" style="grid-column: span 2">
+      <div class="label">Luas Lahan 2026 vs 2025 (Ha)</div>
+      <div class="compare-table">
+        <div class="compare-row head"><span></span><span>2026</span><span>2025</span><span></span></div>
+        <div class="compare-row"><span>TBM</span><b>${fmt(ac.tbm_2026)}</b><span class="yr-old">${fmt(ac.tbm_2025)}</span><span class="delta" style="color:${deltaColor(ac.tbm_delta_pct)}">${fmtPct(ac.tbm_delta_pct)}</span></div>
+        <div class="compare-row"><span>TM</span><b>${fmt(ac.tm_2026)}</b><span class="yr-old">${fmt(ac.tm_2025)}</span><span class="delta" style="color:${deltaColor(ac.tm_delta_pct)}">${fmtPct(ac.tm_delta_pct)}</span></div>
+        <div class="compare-row"><span>TTM</span><b>${fmt(ac.ttm_2026)}</b><span class="yr-old">${fmt(ac.ttm_2025)}</span><span class="delta" style="color:${deltaColor(ac.ttm_delta_pct)}">${fmtPct(ac.ttm_delta_pct)}</span></div>
       </div>
     </div>
     <div class="kpi">
       <div class="label">Produktivitas 2026 vs 2025</div>
-      <div class="value">${fmt(ac.produktivitas_2026)}${deltaTag(ac.produktivitas_delta_pct)}</div>
-      <div class="sub">Kg/Ha &middot; 2025: ${fmt(ac.produktivitas_2025)} Kg/Ha</div>
+      <div class="produktivitas-compare">
+        <div class="yr-block">
+          <div class="value">${fmt(ac.produktivitas_2026)}</div>
+          <div class="yr-label">2026</div>
+        </div>
+        <div class="yr-block yr-old">
+          <div class="value">${fmt(ac.produktivitas_2025)}</div>
+          <div class="yr-label">2025</div>
+        </div>
+      </div>
+      <div class="sub">Kg/Ha &middot; <span style="color:${deltaColor(ac.produktivitas_delta_pct)};font-weight:600">${fmtPct(ac.produktivitas_delta_pct)}</span></div>
     </div>
   ` : "";
 
@@ -617,16 +636,7 @@ function renderHeader() {
       <div class="value" style="${k.valueColor ? "color:" + k.valueColor : ""}">${k.value}</div>
       <div class="sub">${k.sub}</div>
     </div>
-  `).join("") + `
-    <div class="kpi">
-      <div class="label">Luas Kebun</div>
-      <div class="mini-composition">
-        <div class="mini-row"><span>TBM</span><b>${fmt(s.total_TBM)}</b></div>
-        <div class="mini-row"><span>TM</span><b>${fmt(s.total_TM)}</b></div>
-        <div class="mini-row"><span>TTM</span><b>${fmt(s.total_TTM)}</b></div>
-      </div>
-    </div>
-  ` + annualTiles;
+  `).join("") + annualTiles;
 }
 
 /* ---------------- month status chips + lag note ---------------- */
