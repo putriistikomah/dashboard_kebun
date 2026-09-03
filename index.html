@@ -163,6 +163,30 @@ h1 {
 .tab-btn.active { background: var(--accent); border-color: var(--accent); color: var(--surface); }
 .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+.quick-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  background: var(--page);
+  padding: 10px 0;
+  margin: -10px 0 0;
+  border-bottom: 1px solid var(--border);
+}
+.quick-nav a {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.quick-nav a:hover { color: var(--ink-primary); background: var(--surface-hi); }
+section[id] { scroll-margin-top: 56px; }
+
 .updated-row {
   display: flex;
   flex-wrap: wrap;
@@ -379,6 +403,21 @@ table.units tbody td.neg { color: var(--status-critical); }
 .progress-track { flex: 1; height: 6px; border-radius: 999px; background: var(--gridline); overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 999px; }
 .progress-pct { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; width: 48px; text-align: right; }
+.show-more-btn {
+  align-self: center;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+.show-more-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+.show-more-btn[hidden] { display: none; }
 .name-cell { display: flex; flex-direction: column; gap: 2px; }
 .name-cell .unit-name { color: var(--ink-primary); }
 .name-cell .miss-inline { font-size: 10.5px; color: var(--status-critical); }
@@ -406,9 +445,18 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     <div class="updated-row" id="updatedRow"></div>
   </header>
 
+  <nav class="quick-nav">
+    <a href="#sec-progress">Progress Data</a>
+    <a href="#sec-trend">Tren Produksi</a>
+    <a href="#sec-movers">Naik &amp; Turun</a>
+    <a href="#sec-incomplete">Data Belum Lengkap</a>
+    <a href="#sec-kab">Ringkasan Kabupaten</a>
+    <a href="#sec-units">Rincian Unit</a>
+  </nav>
+
   <section class="kpi-row" id="kpiRow"></section>
 
-  <section class="panel">
+  <section class="panel" id="sec-progress">
     <div class="section-head">
       <div>
         <h2>Monitoring Progress Pemasukan Data per Kabupaten</h2>
@@ -429,7 +477,7 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="sec-trend">
     <div class="section-head">
       <div>
         <h2>Tren Produksi Bulanan</h2>
@@ -441,7 +489,7 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     <div class="section-note" id="lagNote" style="display:none"></div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="sec-movers">
     <div class="section-head">
       <div>
         <h2>Kenaikan &amp; Penurunan Produksi</h2>
@@ -452,7 +500,7 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     <div id="moversSections"></div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="sec-incomplete">
     <div class="section-head">
       <div>
         <h2>Unit dengan Data Belum Lengkap</h2>
@@ -469,9 +517,10 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
         <tbody id="incompleteTableBody"></tbody>
       </table>
     </div>
+    <button type="button" class="show-more-btn" id="incompleteShowMore"></button>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="sec-kab">
     <div class="section-head">
       <div>
         <h2>Ringkasan per Kabupaten</h2>
@@ -494,7 +543,7 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="sec-units">
     <div class="section-head">
       <div>
         <h2>Rincian per Unit Kebun</h2>
@@ -522,6 +571,7 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
         <tbody id="unitTableBody"></tbody>
       </table>
     </div>
+    <button type="button" class="show-more-btn" id="unitShowMore"></button>
   </section>
 
   <footer>
@@ -587,9 +637,10 @@ let CURRENT_KEY = null;
 const moversState = { index: -1 }; // -1 = not yet chosen, defaults to the latest comparison
 const kabCompareState = { index: -1 };
 const unitCompareState = { index: -1 };
-const incompleteState = { sortKey: "missing_count", sortDir: -1 };
+const incompleteState = { sortKey: "missing_count", sortDir: -1, showAll: false };
 const kabState = { sortKey: "delta", sortDir: 1 };
-const unitState = { sortKey: "total", sortDir: -1, query: "", kabFilter: "" };
+const unitState = { sortKey: "total", sortDir: -1, query: "", kabFilter: "", showAll: false };
+const TABLE_PREVIEW_ROWS = 12;
 const kabProgressState = { sortKey: "percent", sortDir: 1 }; // worst progress first by default
 
 /* ---------------- header ---------------- */
@@ -819,7 +870,8 @@ function drawIncompleteTable() {
     if (typeof av === "string") return av.localeCompare(bv) * incompleteState.sortDir;
     return ((av || 0) - (bv || 0)) * incompleteState.sortDir;
   });
-  document.getElementById("incompleteTableBody").innerHTML = rows.length ? rows.map(r => `
+  const shown = incompleteState.showAll ? rows : rows.slice(0, TABLE_PREVIEW_ROWS);
+  document.getElementById("incompleteTableBody").innerHTML = shown.length ? shown.map(r => `
     <tr>
       <td>${r.nama_unit}</td>
       <td><span class="kab-pill">Kab. ${r.kab_unit}</span></td>
@@ -831,6 +883,16 @@ function drawIncompleteTable() {
     th.querySelector(".arrow")?.remove();
     if (th.dataset.key === incompleteState.sortKey) th.innerHTML += `<span class="arrow">${incompleteState.sortDir === 1 ? "▲" : "▼"}</span>`;
   });
+
+  const btn = document.getElementById("incompleteShowMore");
+  if (rows.length <= TABLE_PREVIEW_ROWS) {
+    btn.hidden = true;
+  } else {
+    btn.hidden = false;
+    btn.textContent = incompleteState.showAll
+      ? "Sembunyikan sebagian"
+      : `Tampilkan semua (${rows.length} unit)`;
+  }
 }
 
 /* ---------------- kabupaten progress (data-entry monitoring) ---------------- */
@@ -949,7 +1011,9 @@ function drawUnitTable() {
     if (typeof av === "boolean") return ((av === bv) ? 0 : (av ? -1 : 1)) * unitState.sortDir;
     return ((av || 0) - (bv || 0)) * unitState.sortDir;
   });
-  document.getElementById("unitTableBody").innerHTML = rows.map(r => `
+  const filtered = unitState.query !== "" || unitState.kabFilter !== "";
+  const shown = (unitState.showAll || filtered) ? rows : rows.slice(0, TABLE_PREVIEW_ROWS);
+  document.getElementById("unitTableBody").innerHTML = shown.map(r => `
     <tr>
       <td><div class="name-cell"><span class="unit-name">${r.nama_unit}</span>${r._cmp.missing_months.length ? `<span class="miss-inline">${r._cmp.missing_months.length} bulan belum lengkap</span>` : ""}</div></td>
       <td><span class="kab-pill">Kab. ${r.kab_unit}</span></td>
@@ -965,6 +1029,16 @@ function drawUnitTable() {
     th.querySelector(".arrow")?.remove();
     if (th.dataset.key === unitState.sortKey) th.innerHTML += `<span class="arrow">${unitState.sortDir === 1 ? "▲" : "▼"}</span>`;
   });
+
+  const btn = document.getElementById("unitShowMore");
+  if (filtered || rows.length <= TABLE_PREVIEW_ROWS) {
+    btn.hidden = true;
+  } else {
+    btn.hidden = false;
+    btn.textContent = unitState.showAll
+      ? "Sembunyikan sebagian"
+      : `Tampilkan semua (${rows.length} unit)`;
+  }
 }
 
 /* ---------------- tabs & wiring ---------------- */
@@ -986,10 +1060,10 @@ function switchTab(key) {
   moversState.index = -1;
   kabCompareState.index = -1;
   unitCompareState.index = -1;
-  incompleteState.sortKey = "missing_count"; incompleteState.sortDir = -1;
+  incompleteState.sortKey = "missing_count"; incompleteState.sortDir = -1; incompleteState.showAll = false;
   kabProgressState.sortKey = "percent"; kabProgressState.sortDir = 1;
   kabState.sortKey = "delta"; kabState.sortDir = 1;
-  unitState.sortKey = "total"; unitState.sortDir = -1; unitState.query = ""; unitState.kabFilter = "";
+  unitState.sortKey = "total"; unitState.sortDir = -1; unitState.query = ""; unitState.kabFilter = ""; unitState.showAll = false;
   document.getElementById("unitSearch").value = "";
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.key === key));
   renderAll();
@@ -1046,6 +1120,14 @@ document.querySelectorAll("#unitTable thead th").forEach(th => {
 });
 document.getElementById("unitSearch").addEventListener("input", (e) => { unitState.query = e.target.value.toLowerCase(); drawUnitTable(); });
 document.getElementById("kabFilter").addEventListener("change", (e) => { unitState.kabFilter = e.target.value; drawUnitTable(); });
+document.getElementById("incompleteShowMore").addEventListener("click", () => {
+  incompleteState.showAll = !incompleteState.showAll;
+  drawIncompleteTable();
+});
+document.getElementById("unitShowMore").addEventListener("click", () => {
+  unitState.showAll = !unitState.showAll;
+  drawUnitTable();
+});
 
 document.getElementById("generatedAt").textContent = "Dibuat " + new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
