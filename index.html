@@ -595,7 +595,10 @@ function renderHeader() {
     label: "Data Tidak Lengkap",
     value: fmt(s.incomplete_count),
     sub: "dari " + fmt(s.n_units) + " unit" + (s.top_missing_month
-      ? ` &middot; ${fmt(s.top_missing_count)} belum lapor ${s.top_missing_month}` : ""),
+      ? (s.top_missing_count === s.incomplete_count
+          ? ` &middot; semua belum lapor ${s.top_missing_month}`
+          : ` &middot; ${fmt(s.top_missing_count)} belum lapor ${s.top_missing_month}`)
+      : ""),
     valueColor: s.incomplete_count > 0 ? cssvar("--status-critical") : cssvar("--ink-primary"),
   });
 
