@@ -613,20 +613,6 @@ function renderHeader() {
         <div class="compare-row"><span>TTM</span><b>${fmt(ac.ttm_2026)}</b><span class="yr-old">${fmt(ac.ttm_2025)}</span><span class="delta" style="color:${deltaColor(ac.ttm_delta_pct)}">${fmtPct(ac.ttm_delta_pct)}</span></div>
       </div>
     </div>
-    <div class="kpi">
-      <div class="label">Produktivitas 2026 vs 2025</div>
-      <div class="produktivitas-compare">
-        <div class="yr-block">
-          <div class="value">${fmt(ac.produktivitas_2026)}</div>
-          <div class="yr-label">2026</div>
-        </div>
-        <div class="yr-block yr-old">
-          <div class="value">${fmt(ac.produktivitas_2025)}</div>
-          <div class="yr-label">2025</div>
-        </div>
-      </div>
-      <div class="sub">Kg/Ha &middot; <span style="color:${deltaColor(ac.produktivitas_delta_pct)};font-weight:600">${fmtPct(ac.produktivitas_delta_pct)}</span></div>
-    </div>
   ` : "";
 
   const row = document.getElementById("kpiRow");
