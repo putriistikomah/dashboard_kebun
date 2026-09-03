@@ -586,7 +586,7 @@ function renderHeader() {
     const color = pct === null ? cssvar("--ink-muted") : (up ? cssvar("--status-good") : cssvar("--status-critical"));
     kpis.push({
       label: "Perubahan " + m.compare_label,
-      value: `<span>${fmt(m.eligible_to_total)}</span><span class="delta-tag" style="color:${color}">${fmtPct(pct)}</span>`,
+      value: `<span>${fmt(m.eligible_to_total)} Ton</span><span class="delta-tag" style="color:${color}">${fmtPct(pct)}</span>`,
       sub: m.eligible_count + " unit data lengkap", isHtml: true,
     });
   }
