@@ -163,29 +163,6 @@ h1 {
 .tab-btn.active { background: var(--accent); border-color: var(--accent); color: var(--surface); }
 .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.quick-nav {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  background: var(--page);
-  padding: 10px 0;
-  margin: -10px 0 0;
-  border-bottom: 1px solid var(--border);
-}
-.quick-nav a {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--ink-secondary);
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.quick-nav a:hover { color: var(--ink-primary); background: var(--surface-hi); }
-section[id] { scroll-margin-top: 56px; }
 
 .updated-row {
   display: flex;
@@ -250,7 +227,9 @@ h2 {
   letter-spacing: -0.01em;
   display: flex;
   align-items: baseline;
-  gap: 7px;
+  flex-wrap: wrap;
+  gap: 4px 7px;
+  min-width: 0;
 }
 .kpi .value .delta-tag { font-size: 13px; font-weight: 600; }
 .kpi .sub { font-size: 12px; color: var(--ink-secondary); }
@@ -444,15 +423,6 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     <div class="tab-bar" id="tabBar"></div>
     <div class="updated-row" id="updatedRow"></div>
   </header>
-
-  <nav class="quick-nav">
-    <a href="#sec-progress">Progress Data</a>
-    <a href="#sec-trend">Tren Produksi</a>
-    <a href="#sec-movers">Naik &amp; Turun</a>
-    <a href="#sec-incomplete">Data Belum Lengkap</a>
-    <a href="#sec-kab">Ringkasan Kabupaten</a>
-    <a href="#sec-units">Rincian Unit</a>
-  </nav>
 
   <section class="kpi-row" id="kpiRow"></section>
 
@@ -663,7 +633,7 @@ function renderHeader() {
     const color = pct === null ? cssvar("--ink-muted") : (up ? cssvar("--status-good") : cssvar("--status-critical"));
     kpis.push({
       label: "Perubahan " + m.compare_label,
-      value: `<span style="white-space:nowrap">${fmt(m.eligible_to_total)} Ton</span><span class="delta-tag" style="color:${color}">${fmtPct(pct)}</span>`,
+      value: `<span>${fmt(m.eligible_to_total)}&nbsp;Ton</span><span class="delta-tag" style="color:${color}">${fmtPct(pct)}</span>`,
       sub: m.eligible_count + " unit data lengkap", isHtml: true,
     });
   }
