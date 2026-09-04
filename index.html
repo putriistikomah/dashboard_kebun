@@ -307,6 +307,8 @@ svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
 .month-chip.has-data .dot { background: var(--status-good); }
 .month-chip.pending .dot { background: var(--ink-muted); opacity: 0.5; }
 .month-chip.pending { color: var(--ink-muted); }
+.month-chip.overdue .dot { background: var(--status-critical); }
+.month-chip.overdue { color: var(--status-critical); }
 
 /* ---- movers ---- */
 .movers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
@@ -677,10 +679,14 @@ function renderHeader() {
 /* ---------------- month status chips + lag note ---------------- */
 function renderMonthChips() {
   const withData = new Set(CURRENT.summary.reported_months);
+  const elapsed = CURRENT.summary.months_elapsed || 0;
   const row = document.getElementById("monthStatusRow");
-  row.innerHTML = MONTHS.map(m => {
-    const has = withData.has(m);
-    return `<span class="month-chip ${has ? "has-data" : "pending"}"><span class="dot"></span>${m.slice(0,3)}</span>`;
+  row.innerHTML = MONTHS.map((m, i) => {
+    // has-data = actually reported; overdue = due by now (calendar) but still
+    // nothing; pending = genuinely not due yet. Same calendar standard as
+    // the header/incomplete-units panel, just one more visual state here.
+    const state = withData.has(m) ? "has-data" : (i < elapsed ? "overdue" : "pending");
+    return `<span class="month-chip ${state}"><span class="dot"></span>${m.slice(0,3)}</span>`;
   }).join("");
 
   const note = document.getElementById("lagNote");
