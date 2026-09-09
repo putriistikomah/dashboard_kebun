@@ -463,7 +463,7 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     <div class="section-head">
       <div>
         <h2>Progress Unit Lengkap per Kabupaten</h2>
-        <div class="section-sub" id="kabCompleteSub">Target = seluruh unit sudah lapor lengkap s.d. bulan berjalan</div>
+        <div class="section-sub" id="kabCompleteSub">Target = seluruh unit yang sudah lapor lengkap s.d. bulan berjalan</div>
       </div>
     </div>
     <div class="kab-meter-list" id="kabCompleteChart"></div>
@@ -956,14 +956,14 @@ function progressColor(pct) {
 function drawKabCompleteChart() {
   const lastMonth = CURRENT.summary.last_elapsed_month || "belum ada";
   document.getElementById("kabCompleteSub").innerHTML =
-    `Target = seluruh unit sudah lapor lengkap s.d. <b>${lastMonth}</b> (bulan berjalan)`;
+    `Target = seluruh unit yang sudah lapor lengkap s.d. <b>${lastMonth}</b> (bulan berjalan)`;
 
   const rows = (CURRENT.kab_progress || []).slice().sort((a, b) => a.kab_unit.localeCompare(b.kab_unit));
   const chart = document.getElementById("kabCompleteChart");
   chart.innerHTML = rows.length ? rows.map(r => {
     const pct = r.complete_percent === null || r.complete_percent === undefined ? 0 : r.complete_percent;
     const clamped = Math.max(0, Math.min(100, pct));
-    const color = progressColor(pct);
+    const color = cssvar("--status-good");
     return `
       <div class="kab-meter">
         <span class="kab-pill">Kab. ${r.kab_unit}</span>
