@@ -412,6 +412,12 @@ table.units tbody td.neg { color: var(--status-critical); }
   border-top: 2px solid var(--border); white-space: nowrap;
 }
 #skbKabTable tfoot td:first-child { text-align: left; }
+/* skbCompanyTable's Nama Perusahaan/Status headers are left-aligned (3rd/4th
+   columns), but table.units only left-aligns the first two columns by default
+   — so their cells fell back to right-aligned, drifting from the header above */
+#skbCompanyTable tbody td:nth-child(3), #skbCompanyTable tbody td:nth-child(4) {
+  text-align: left; font-variant-numeric: normal;
+}
 .show-more-btn {
   align-self: center;
   font-family: inherit;
