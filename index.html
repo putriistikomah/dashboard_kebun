@@ -219,6 +219,12 @@ h2 {
 }
 .kpi .label {
   font-size: 12px;
+  line-height: 1.35;
+  /* reserves space for 2 lines even when a tile's own label is one line, so
+     every tile's value/sub sits at the same height across the row instead of
+     drifting down only where a longer label (e.g. "edited by admin
+     kabupaten") happens to wrap */
+  min-height: 2.7em;
   color: var(--ink-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
