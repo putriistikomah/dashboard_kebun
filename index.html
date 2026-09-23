@@ -129,11 +129,9 @@ header.top {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
 }
-.eyebrow {
-  font-size: 12px;
+.page-subtitle {
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
   color: var(--accent);
 }
 h1 {
@@ -462,8 +460,8 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow" id="pageEyebrow">Pemantauan Terpadu Survei Perkebunan</div>
     <h1 id="pageTitle">PETIK</h1>
+    <div class="page-subtitle" id="pageSubtitle">Pemantauan Terpadu Survei Perkebunan</div>
     <div class="top-meta" id="topMeta">
       <b id="unitCount">–</b> unit kebun · data terisi sampai <b id="lastMonth">–</b> ·
       <b id="completeCount">–</b> unit lapor lengkap, <b id="incompleteCount">–</b> unit belum lengkap<span id="noOwnKebunNote"></span>
@@ -801,7 +799,7 @@ const skbState = { sortKey: "kab_name", sortDir: 1, query: "", kabFilter: "", st
 const luasState = { metric: "TM", sortKey: "delta", sortDir: -1, query: "", kabFilter: "", showAll: false };
 const luasPerubahanState = { sortKey: "delta", sortDir: -1, showAll: false };
 
-// PETIK names the whole dashboard, so the eyebrow and h1 stay put across tabs —
+// PETIK names the whole dashboard, so the title and subtitle stay put across tabs —
 // only the summary line under them swaps, since SKB Tahunan counts questionnaires
 // where the production tabs count hectares and tonnes
 const PROD_TOP_META_HTML = document.getElementById("topMeta").innerHTML;
