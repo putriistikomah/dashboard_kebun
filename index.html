@@ -344,6 +344,7 @@ svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
 .mover-delta { font-size: 13px; font-weight: 600; }
 .mover-pct { font-size: 11px; color: var(--ink-muted); }
 .movers-footnote { font-size: 12px; color: var(--ink-muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; }
+.section-tab-bar { display: flex; gap: 6px; flex-wrap: wrap; margin: 20px 0 4px; }
 .movers-tab-bar { display: flex; gap: 6px; margin: 14px 0 18px; flex-wrap: wrap; }
 
 /* ---- badges & chips ---- */
@@ -392,16 +393,6 @@ table.units tbody td.neg { color: var(--status-critical); }
 .progress-track { flex: 1; height: 6px; border-radius: 999px; background: var(--gridline); overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 999px; }
 .progress-pct { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; width: 48px; text-align: right; }
-.kab-meter-list { display: flex; flex-direction: column; gap: 14px; }
-.kab-meter { display: grid; grid-template-columns: 84px 1fr 150px; align-items: center; gap: 14px; }
-.kab-meter-track { height: 14px; border-radius: 999px; background: var(--gridline); overflow: hidden; }
-.kab-meter-fill { height: 100%; border-radius: 999px; transition: width .3s ease; }
-.kab-meter-value { font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--ink-secondary); text-align: right; white-space: nowrap; }
-.kab-meter-pct { font-weight: 700; margin-left: 8px; }
-@media (max-width: 640px) {
-  .kab-meter { grid-template-columns: 64px 1fr; }
-  .kab-meter-value { grid-column: 1 / -1; text-align: left; }
-}
 .skb-status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 .skb-status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 /* skbKabTable has only one identity column (Kabupaten) — every other column
@@ -474,6 +465,10 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
 
   <section class="kpi-row" id="kpiRow"></section>
 
+  <div class="section-tab-bar" id="sectionTabBar"></div>
+
+  <div class="section-group" id="group-progress">
+
   <section class="panel" id="sec-progress">
     <div class="section-head">
       <div>
@@ -489,20 +484,12 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
           <th data-key="target">Target</th>
           <th data-key="actual">Realisasi</th>
           <th data-key="percent">Progress</th>
+          <th data-key="complete_units">Unit Lengkap</th>
+          <th data-key="complete_percent">Lengkap</th>
         </tr></thead>
         <tbody id="kabProgressTableBody"></tbody>
       </table>
     </div>
-  </section>
-
-  <section class="panel" id="sec-kab-complete">
-    <div class="section-head">
-      <div>
-        <h2>Progress Unit Lengkap per Kabupaten</h2>
-        <div class="section-sub" id="kabCompleteSub">Target = seluruh unit yang sudah lapor lengkap s.d. bulan berjalan</div>
-      </div>
-    </div>
-    <div class="kab-meter-list" id="kabCompleteChart"></div>
   </section>
 
   <section class="panel" id="sec-incomplete">
@@ -523,6 +510,9 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     </div>
     <button type="button" class="show-more-btn" id="incompleteShowMore"></button>
   </section>
+  </div>
+
+  <div class="section-group" id="group-produksi">
 
   <section class="panel" id="sec-trend">
     <div class="section-head">
@@ -533,78 +523,6 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     <div class="chart-shell" id="trendChartShell"></div>
     <div class="month-status-row" id="monthStatusRow"></div>
     <div class="section-note" id="lagNote" style="display:none"></div>
-  </section>
-
-  <section class="panel" id="sec-luas-bulanan">
-    <div class="section-head">
-      <div>
-        <h2>Luas Lahan per Bulan</h2>
-        <div class="section-sub">TBM, TM, dan TTM (Ha) sesuai laporan tiap bulan &middot; luas adalah posisi bulan itu, bukan akumulasi &mdash; jadi tidak dijumlahkan antar bulan</div>
-      </div>
-    </div>
-    <div class="table-scroll">
-      <table class="units" id="luasBulananTable">
-        <thead><tr id="luasBulananTableHead"></tr></thead>
-        <tbody id="luasBulananTableBody"></tbody>
-      </table>
-    </div>
-    <div class="section-note" id="luasBulananNote" style="display:none"></div>
-  </section>
-
-  <section class="panel" id="sec-luas-perubahan">
-    <div class="section-head">
-      <div>
-        <h2>Unit yang Mengubah Luas Lahan Antar Bulan</h2>
-        <div class="section-sub" id="luasPerubahanSub">Setiap kali laporan luas suatu unit berbeda dari bulan sebelumnya</div>
-      </div>
-    </div>
-    <div class="table-scroll">
-      <table class="units" id="luasPerubahanTable">
-        <thead><tr>
-          <th data-key="nama_unit" style="text-align:left">Unit</th>
-          <th data-key="kab_unit" style="text-align:left">Kab.</th>
-          <th data-key="uraian">Uraian</th>
-          <th data-key="to_month">Perubahan</th>
-          <th data-key="from_value">Dari (Ha)</th>
-          <th data-key="to_value">Ke (Ha)</th>
-          <th data-key="delta">Δ (Ha)</th>
-        </tr></thead>
-        <tbody id="luasPerubahanTableBody"></tbody>
-      </table>
-    </div>
-    <button type="button" class="show-more-btn" id="luasPerubahanShowMore"></button>
-    <div class="section-note" id="luasPerubahanNote" style="display:none"></div>
-  </section>
-
-  <section class="panel" id="sec-luas-change">
-    <div class="section-head">
-      <div>
-        <h2>Unit dengan Luas Lahan Bertambah / Berkurang</h2>
-        <div class="section-sub" id="luasChangeSub">Luas 2026 dibanding 2025, per unit</div>
-      </div>
-    </div>
-    <div class="movers-tab-bar" id="luasMetricTabBar"></div>
-    <div class="table-controls">
-      <input type="text" class="search" id="luasChangeSearch" placeholder="Cari nama unit…" aria-label="Cari nama unit">
-      <select class="kab-filter" id="luasChangeKabFilter" aria-label="Filter kabupaten">
-        <option value="">Semua kabupaten</option>
-      </select>
-    </div>
-    <div class="table-scroll">
-      <table class="units" id="luasChangeTable">
-        <thead><tr>
-          <th data-key="nama_unit" style="text-align:left">Unit</th>
-          <th data-key="kab_unit" style="text-align:left">Kab.</th>
-          <th data-key="v2025">2025 (Ha)</th>
-          <th data-key="v2026">2026 (Ha)</th>
-          <th data-key="delta">Δ (Ha)</th>
-          <th data-key="pct">%</th>
-        </tr></thead>
-        <tbody id="luasChangeTableBody"></tbody>
-      </table>
-    </div>
-    <button type="button" class="show-more-btn" id="luasChangeShowMore"></button>
-    <div class="section-note" id="luasChangeNote" style="display:none"></div>
   </section>
 
   <section class="panel" id="sec-movers">
@@ -670,6 +588,76 @@ footer code { background: var(--surface); border: 1px solid var(--border); paddi
     </div>
     <button type="button" class="show-more-btn" id="unitShowMore"></button>
   </section>
+  </div>
+
+  <div class="section-group" id="group-luas">
+
+  <section class="panel" id="sec-luas-bulanan">
+    <div class="section-head">
+      <div>
+        <h2>Luas Lahan per Bulan</h2>
+        <div class="section-sub">TBM, TM, dan TTM (Ha) sesuai laporan tiap bulan &middot; luas adalah posisi bulan itu, bukan akumulasi &mdash; jadi tidak dijumlahkan antar bulan</div>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table class="units" id="luasBulananTable">
+        <thead><tr id="luasBulananTableHead"></tr></thead>
+        <tbody id="luasBulananTableBody"></tbody>
+      </table>
+    </div>
+    <div class="section-note" id="luasBulananNote" style="display:none"></div>
+  </section>
+
+  <section class="panel" id="sec-luas-unit">
+    <div class="section-head">
+      <div>
+        <h2>Unit dengan Perubahan Luas Lahan</h2>
+        <div class="section-sub" id="luasUnitSub">Pilih periode pembandingnya</div>
+      </div>
+    </div>
+    <div class="movers-tab-bar" id="luasModeTabBar"></div>
+    <div id="luasModeBulan">    <div class="table-scroll">
+      <table class="units" id="luasPerubahanTable">
+        <thead><tr>
+          <th data-key="nama_unit" style="text-align:left">Unit</th>
+          <th data-key="kab_unit" style="text-align:left">Kab.</th>
+          <th data-key="uraian">Uraian</th>
+          <th data-key="to_month">Perubahan</th>
+          <th data-key="from_value">Dari (Ha)</th>
+          <th data-key="to_value">Ke (Ha)</th>
+          <th data-key="delta">Δ (Ha)</th>
+        </tr></thead>
+        <tbody id="luasPerubahanTableBody"></tbody>
+      </table>
+    </div>
+    <button type="button" class="show-more-btn" id="luasPerubahanShowMore"></button>
+    <div class="section-note" id="luasPerubahanNote" style="display:none"></div>
+    </div>
+    <div id="luasModeTahun" hidden>    <div class="movers-tab-bar" id="luasMetricTabBar"></div>
+    <div class="table-controls">
+      <input type="text" class="search" id="luasChangeSearch" placeholder="Cari nama unit…" aria-label="Cari nama unit">
+      <select class="kab-filter" id="luasChangeKabFilter" aria-label="Filter kabupaten">
+        <option value="">Semua kabupaten</option>
+      </select>
+    </div>
+    <div class="table-scroll">
+      <table class="units" id="luasChangeTable">
+        <thead><tr>
+          <th data-key="nama_unit" style="text-align:left">Unit</th>
+          <th data-key="kab_unit" style="text-align:left">Kab.</th>
+          <th data-key="v2025">2025 (Ha)</th>
+          <th data-key="v2026">2026 (Ha)</th>
+          <th data-key="delta">Δ (Ha)</th>
+          <th data-key="pct">%</th>
+        </tr></thead>
+        <tbody id="luasChangeTableBody"></tbody>
+      </table>
+    </div>
+    <button type="button" class="show-more-btn" id="luasChangeShowMore"></button>
+    <div class="section-note" id="luasChangeNote" style="display:none"></div>
+    </div>
+  </section>
+  </div>
 
   </div>
 
@@ -798,6 +786,15 @@ const skbState = { sortKey: "kab_name", sortDir: 1, query: "", kabFilter: "", st
 // big shrink surfaces as readily as a big expansion
 const luasState = { metric: "TM", sortKey: "delta", sortDir: -1, query: "", kabFilter: "", showAll: false };
 const luasPerubahanState = { sortKey: "delta", sortDir: -1, showAll: false };
+const luasModeState = { mode: "bulan" };  // "bulan" = month to month in 2026, "tahun" = vs 2025
+// the production tabs carry ten panels; showing one theme at a time keeps the
+// page to a screen or two instead of one long scroll
+const SECTION_GROUPS = [
+  { key: "progress", label: "Progress" },
+  { key: "produksi", label: "Produksi" },
+  { key: "luas", label: "Luas Lahan" },
+];
+const sectionState = { key: "progress" };
 
 // PETIK names the whole dashboard, so the title and subtitle stay put across tabs —
 // only the summary line under them swaps, since SKB Tahunan counts questionnaires
@@ -1088,30 +1085,6 @@ function progressColor(pct) {
   return cssvar("--status-critical");
 }
 
-// one meter per kabupaten: how many of its units are fully caught up through
-// the target month (last_elapsed_month, e.g. Agustus) vs how many units it
-// has registered — same calendar standard as the incomplete/complete panels,
-// so this chart, the header counts, and those tables all agree
-function drawKabCompleteChart() {
-  const lastMonth = CURRENT.summary.last_elapsed_month || "belum ada";
-  document.getElementById("kabCompleteSub").innerHTML =
-    `Target = seluruh unit yang sudah lapor lengkap s.d. <b>${lastMonth}</b> (bulan berjalan)`;
-
-  const rows = (CURRENT.kab_progress || []).slice().sort((a, b) => a.kab_unit.localeCompare(b.kab_unit));
-  const chart = document.getElementById("kabCompleteChart");
-  chart.innerHTML = rows.length ? rows.map(r => {
-    const pct = r.complete_percent === null || r.complete_percent === undefined ? 0 : r.complete_percent;
-    const clamped = Math.max(0, Math.min(100, pct));
-    const color = cssvar("--status-good");
-    return `
-      <div class="kab-meter">
-        <span class="kab-pill">Kab. ${r.kab_unit}</span>
-        <div class="kab-meter-track"><div class="kab-meter-fill" style="width:${clamped}%; background:${color}"></div></div>
-        <div class="kab-meter-value">${fmt(r.complete_units)} / ${fmt(r.n_units)} unit<span class="kab-meter-pct" style="color:${color}">${fmt(pct, 1)}%</span></div>
-      </div>
-    `;
-  }).join("") : `<div class="section-sub">Belum ada data kabupaten.</div>`;
-}
 
 function drawKabProgressTable() {
   // same calendar-based months_elapsed as the header/incomplete-units panel
@@ -1119,7 +1092,8 @@ function drawKabProgressTable() {
   const months = CURRENT.summary.months_elapsed || 0;
   const lastMonth = CURRENT.summary.last_elapsed_month || "belum ada";
   document.getElementById("kabProgressSub").innerHTML =
-    `Target = jumlah unit &times; ${fmt(months)} bulan berjalan (s.d. ${lastMonth}) &middot; Realisasi = laporan bulanan yang sudah masuk`;
+    `Target = jumlah unit &times; ${fmt(months)} bulan berjalan (s.d. ${lastMonth}) &middot; Realisasi = laporan bulanan yang sudah masuk ` +
+    `&middot; Unit Lengkap = unit yang laporannya lengkap s.d. ${lastMonth}`;
 
   const rows = (CURRENT.kab_progress || []).slice();
   rows.sort((a, b) => (((a[kabProgressState.sortKey] ?? 0)) - ((b[kabProgressState.sortKey] ?? 0))) * kabProgressState.sortDir);
@@ -1128,6 +1102,10 @@ function drawKabProgressTable() {
     const pct = r.percent;
     const color = progressColor(pct);
     const pctLabel = pct === null || pct === undefined ? "–" : fmt(pct, 1) + "%";
+    // unit-completeness keeps its own green bar (a share of units, not of reports)
+    const cPct = r.complete_percent;
+    const cColor = cssvar("--status-good");
+    const cLabel = cPct === null || cPct === undefined ? "–" : fmt(cPct, 1) + "%";
     return `
     <tr>
       <td><span class="kab-pill">Kab. ${r.kab_unit}</span></td>
@@ -1138,6 +1116,13 @@ function drawKabProgressTable() {
         <div class="progress-cell">
           <div class="progress-track"><div class="progress-fill" style="width:${Math.max(0, Math.min(100, pct || 0))}%;background:${color}"></div></div>
           <span class="progress-pct" style="color:${color}">${pctLabel}</span>
+        </div>
+      </td>
+      <td>${fmt(r.complete_units)} / ${fmt(r.n_units)}</td>
+      <td>
+        <div class="progress-cell">
+          <div class="progress-track"><div class="progress-fill" style="width:${Math.max(0, Math.min(100, cPct || 0))}%;background:${cColor}"></div></div>
+          <span class="progress-pct" style="color:${cColor}">${cLabel}</span>
         </div>
       </td>
     </tr>
@@ -1305,17 +1290,54 @@ function drawLuasBulananTable() {
   }
 }
 
+/* ---------------- luas lahan per unit: one panel, two comparison periods ---------------- */
+// Both tables answer "which units changed their area" — they only differ in what
+// they compare against, so they share a panel instead of stacking two of them.
+function luasModesAvailable() {
+  const modes = [];
+  if (CURRENT.luas_perubahan) modes.push({ key: "bulan", label: "Antar bulan 2026" });
+  if ((CURRENT.units || []).some(u => u.has_2025)) modes.push({ key: "tahun", label: "Dibanding 2025" });
+  return modes;
+}
+
+function renderLuasUnitPanel() {
+  const section = document.getElementById("sec-luas-unit");
+  const modes = luasModesAvailable();
+  // nothing to compare against (no annual file, or cached data predating this panel)
+  if (!modes.length) { section.hidden = true; return; }
+  section.hidden = false;
+  if (!modes.some(m => m.key === luasModeState.mode)) luasModeState.mode = modes[0].key;
+
+  const bar = document.getElementById("luasModeTabBar");
+  bar.innerHTML = modes.map(m => `
+    <button type="button" class="tab-btn ${m.key === luasModeState.mode ? "active" : ""}" data-mode="${m.key}">${m.label}</button>
+  `).join("");
+  bar.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
+    luasModeState.mode = btn.dataset.mode;
+    renderLuasUnitPanel();
+  }));
+
+  const isBulan = luasModeState.mode === "bulan";
+  document.getElementById("luasModeBulan").hidden = !isBulan;
+  document.getElementById("luasModeTahun").hidden = isBulan;
+  document.getElementById("luasUnitSub").textContent = isBulan
+    ? "Setiap kali laporan luas suatu unit berbeda dari bulan sebelumnya"
+    : `Luas ${luasState.metric} 2026 dibanding 2025, per unit — urut dari perubahan terbesar`;
+
+  if (isBulan) {
+    drawLuasPerubahanTable();
+  } else {
+    renderLuasMetricTabBar();
+    rebuildLuasKabFilterOptions();
+    drawLuasChangeTable();
+  }
+}
+
 /* ---------------- luas lahan: which units changed it month to month ---------------- */
 // Answers "the monthly totals moved — who moved them". Each row is one unit's
 // reported area differing from its own previous reported month.
 function drawLuasPerubahanTable() {
-  const section = document.getElementById("sec-luas-perubahan");
-  const all = CURRENT.luas_perubahan;
-  // hidden for a commodity whose cached data predates this panel
-  if (!all) { section.hidden = true; return; }
-  section.hidden = false;
-
-  const rows = all.slice();
+  const rows = (CURRENT.luas_perubahan || []).slice();
   rows.sort((a, b) => {
     const av = a[luasPerubahanState.sortKey], bv = b[luasPerubahanState.sortKey];
     if (luasPerubahanState.sortKey === "to_month") {
@@ -1401,21 +1423,11 @@ function renderLuasMetricTabBar() {
   `).join("");
   bar.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
     luasState.metric = btn.dataset.metric;
-    renderLuasMetricTabBar();
-    drawLuasChangeTable();
+    renderLuasUnitPanel();
   }));
 }
 
 function drawLuasChangeTable() {
-  const section = document.getElementById("sec-luas-change");
-  const hasPrior = (CURRENT.units || []).some(u => u.has_2025);
-  // hide entirely for a commodity with no annual file, or cached data predating this panel
-  if (!hasPrior) { section.hidden = true; return; }
-  section.hidden = false;
-
-  document.getElementById("luasChangeSub").textContent =
-    `Luas ${luasState.metric} 2026 dibanding 2025, per unit — urut dari perubahan terbesar`;
-
   const all = luasChangeRows();
   // the panel is about movement against last year, so two groups drop out: units
   // whose area is identical to last year, and units with no 2025 figure to compare
@@ -1608,18 +1620,37 @@ function renderSkbView() {
   drawSkbCompanyTable();
 }
 
+/* ---------------- section groups (Progress / Produksi / Luas Lahan) ---------------- */
+function renderSectionTabBar() {
+  const bar = document.getElementById("sectionTabBar");
+  bar.innerHTML = SECTION_GROUPS.map(g => `
+    <button type="button" class="tab-btn ${g.key === sectionState.key ? "active" : ""}" data-section="${g.key}">${g.label}</button>
+  `).join("");
+  bar.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
+    sectionState.key = btn.dataset.section;
+    renderSectionTabBar();
+    showSectionGroup();
+  }));
+}
+
+function showSectionGroup() {
+  SECTION_GROUPS.forEach(g => {
+    document.getElementById(`group-${g.key}`).hidden = g.key !== sectionState.key;
+  });
+  // the trend chart sizes itself from its container, which measures 0 while hidden
+  if (sectionState.key === "produksi") renderTrendChart();
+}
+
 /* ---------------- tabs & wiring ---------------- */
 function renderAll() {
   renderHeader();
+  renderSectionTabBar();
+  showSectionGroup();
   renderMonthChips();
   renderTrendChart();
   drawLuasBulananTable();
-  drawLuasPerubahanTable();
-  renderLuasMetricTabBar();
-  rebuildLuasKabFilterOptions();
-  drawLuasChangeTable();
+  renderLuasUnitPanel();
   renderMovers();
-  drawKabCompleteChart();
   drawIncompleteTable();
   drawKabProgressTable();
   drawKabTable();
@@ -1652,6 +1683,8 @@ function switchTab(key) {
     luasState.metric = "TM"; luasState.sortKey = "delta"; luasState.sortDir = -1;
     luasState.query = ""; luasState.kabFilter = ""; luasState.showAll = false;
     luasPerubahanState.sortKey = "delta"; luasPerubahanState.sortDir = -1; luasPerubahanState.showAll = false;
+    luasModeState.mode = "bulan";
+    sectionState.key = "progress";
     document.getElementById("unitSearch").value = "";
     document.getElementById("luasChangeSearch").value = "";
     document.getElementById("topMeta").innerHTML = PROD_TOP_META_HTML;
